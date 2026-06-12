@@ -1,0 +1,7 @@
+node_modules
+dist
+.env
+.env.local
+.vercel
+*.log
+worldcup2026.raw.json
