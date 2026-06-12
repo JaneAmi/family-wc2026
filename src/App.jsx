@@ -212,13 +212,6 @@ function MatchesView({ players, matches, predByKey, me, now, onSave }) {
 
   return (
     <div className="matches">
-      {STAGE_ORDER.filter((s) => byStage[s]).map((stage) => (
-        <section key={stage} className="stage">
-          <h2>{STAGE_LABEL[stage]}</h2>
-          {table(byStage[stage])}
-        </section>
-      ))}
-
       {finished.length > 0 && (
         <section className="stage finished">
           <button
@@ -231,6 +224,13 @@ function MatchesView({ players, matches, predByKey, me, now, onSave }) {
           {showFinished && table(finished)}
         </section>
       )}
+
+      {STAGE_ORDER.filter((s) => byStage[s]).map((stage) => (
+        <section key={stage} className="stage">
+          <h2>{STAGE_LABEL[stage]}</h2>
+          {table(byStage[stage])}
+        </section>
+      ))}
     </div>
   );
 }
