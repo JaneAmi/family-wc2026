@@ -157,35 +157,26 @@ export default function App() {
 }
 
 function MatchesView({ players, matches, predByKey, me, now, onSave }) {
+  const [showFinished, setShowFinished] = useState(false);
+
+  const active = useMemo(
+    () => matches.filter((m) => matchState(m, now) !== 'played'),
+    [matches, now],
+  );
+  const finished = useMemo(
+    () =>
+      matches
+        .filter((m) => matchState(m, now) === 'played')
+        .sort((a, b) => new Date(b.kickoff) - new Date(a.kickoff)),
+    [matches, now],
+  );
+
   const byStage = useMemo(() => {
     const groups = {};
-    for (const m of matches) (groups[m.stage] ||= []).push(m);
+    for (const m of active) (groups[m.stage] ||= []).push(m);
     for (const s in groups) groups[s].sort((a, b) => new Date(a.kickoff) - new Date(b.kickoff));
     return groups;
-  }, [matches]);
-
-  return (
-    <div className="matches">
-      {STAGE_ORDER.filter((s) => byStage[s]).map((stage) => (
-        <StageSection
-          key={stage}
-          stage={stage}
-          matches={byStage[stage]}
-          players={players}
-          predByKey={predByKey}
-          me={me}
-          now={now}
-          onSave={onSave}
-        />
-      ))}
-    </div>
-  );
-}
-
-function StageSection({ stage, matches, players, predByKey, me, now, onSave }) {
-  const [showFinished, setShowFinished] = useState(false);
-  const finished = matches.filter((m) => matchState(m, now) === 'played');
-  const active = matches.filter((m) => matchState(m, now) !== 'played');
+  }, [active]);
 
   const header = (
     <tr>
@@ -220,11 +211,16 @@ function StageSection({ stage, matches, players, predByKey, me, now, onSave }) {
   );
 
   return (
-    <section className="stage">
-      <h2>{STAGE_LABEL[stage]}</h2>
-      {active.length > 0 && table(active)}
+    <div className="matches">
+      {STAGE_ORDER.filter((s) => byStage[s]).map((stage) => (
+        <section key={stage} className="stage">
+          <h2>{STAGE_LABEL[stage]}</h2>
+          {table(byStage[stage])}
+        </section>
+      ))}
+
       {finished.length > 0 && (
-        <div className="finished">
+        <section className="stage finished">
           <button
             className="finished-toggle"
             onClick={() => setShowFinished((v) => !v)}
@@ -233,9 +229,9 @@ function StageSection({ stage, matches, players, predByKey, me, now, onSave }) {
             ✓ Finished matches ({finished.length}) {showFinished ? '⬆️' : '⬇️'}
           </button>
           {showFinished && table(finished)}
-        </div>
+        </section>
       )}
-    </section>
+    </div>
   );
 }
 
