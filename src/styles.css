@@ -81,6 +81,16 @@ table.grid { border-collapse: collapse; width: 100%; min-width: 560px; }
 .pcol.miss  { background: var(--miss); }
 .mrow.played .mcol { background: #fbfdfc; }
 
+/* collapsible "finished matches" group */
+.finished { margin-top: 8px; }
+.finished-toggle {
+  width: 100%; text-align: left; background: #f1f4f2; color: var(--muted);
+  border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
+  font-weight: 600; cursor: pointer;
+}
+.finished-toggle:hover { background: #e9eeeb; }
+.finished .tablewrap { margin-top: 8px; }
+
 /* leaderboard */
 .leaderboard, .settings { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
 table.board { width: 100%; border-collapse: collapse; }

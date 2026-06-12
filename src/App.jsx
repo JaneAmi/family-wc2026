@@ -167,38 +167,75 @@ function MatchesView({ players, matches, predByKey, me, now, onSave }) {
   return (
     <div className="matches">
       {STAGE_ORDER.filter((s) => byStage[s]).map((stage) => (
-        <section key={stage} className="stage">
-          <h2>{STAGE_LABEL[stage]}</h2>
-          <div className="tablewrap">
-            <table className="grid">
-              <thead>
-                <tr>
-                  <th className="mcol">Match</th>
-                  {players.map((p) => (
-                    <th key={p.id} className={p.id === me ? 'pcol mecol' : 'pcol'}>
-                      {p.name}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {byStage[stage].map((m) => (
-                  <MatchRow
-                    key={m.match_no}
-                    match={m}
-                    players={players}
-                    predByKey={predByKey}
-                    me={me}
-                    now={now}
-                    onSave={onSave}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
+        <StageSection
+          key={stage}
+          stage={stage}
+          matches={byStage[stage]}
+          players={players}
+          predByKey={predByKey}
+          me={me}
+          now={now}
+          onSave={onSave}
+        />
       ))}
     </div>
+  );
+}
+
+function StageSection({ stage, matches, players, predByKey, me, now, onSave }) {
+  const [showFinished, setShowFinished] = useState(false);
+  const finished = matches.filter((m) => matchState(m, now) === 'played');
+  const active = matches.filter((m) => matchState(m, now) !== 'played');
+
+  const header = (
+    <tr>
+      <th className="mcol">Match</th>
+      {players.map((p) => (
+        <th key={p.id} className={p.id === me ? 'pcol mecol' : 'pcol'}>
+          {p.name}
+        </th>
+      ))}
+    </tr>
+  );
+
+  const table = (rows) => (
+    <div className="tablewrap">
+      <table className="grid">
+        <thead>{header}</thead>
+        <tbody>
+          {rows.map((m) => (
+            <MatchRow
+              key={m.match_no}
+              match={m}
+              players={players}
+              predByKey={predByKey}
+              me={me}
+              now={now}
+              onSave={onSave}
+            />
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  return (
+    <section className="stage">
+      <h2>{STAGE_LABEL[stage]}</h2>
+      {active.length > 0 && table(active)}
+      {finished.length > 0 && (
+        <div className="finished">
+          <button
+            className="finished-toggle"
+            onClick={() => setShowFinished((v) => !v)}
+            aria-expanded={showFinished}
+          >
+            ✓ Finished matches ({finished.length}) {showFinished ? '⬆️' : '⬇️'}
+          </button>
+          {showFinished && table(finished)}
+        </div>
+      )}
+    </section>
   );
 }
 
