@@ -259,8 +259,10 @@ function MatchRow({ match, players, predByKey, me, now, onSave }) {
             </span>
           ) : state === 'locked' ? (
             <span className="badge locked">Locked</span>
-          ) : (
+          ) : bettable ? (
             <span className="badge open">Open for bets</span>
+          ) : (
+            <span className="badge pending">Opens after group stage</span>
           )}
         </div>
       </td>

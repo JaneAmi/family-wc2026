@@ -63,6 +63,7 @@ table.grid { border-collapse: collapse; width: 100%; min-width: 560px; }
 .badge { font-size: 11px; padding: 1px 7px; border-radius: 999px; }
 .badge.open { background: var(--exact); color: var(--green-d); }
 .badge.locked { background: #eceff0; color: var(--muted); }
+.badge.pending { background: #eceff0; color: var(--muted); }
 .result { font-weight: 800; }
 .result .ft { font-size: 10px; color: var(--muted); font-weight: 600; }
 
