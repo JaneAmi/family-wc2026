@@ -94,3 +94,35 @@ table.board { width: 100%; border-collapse: collapse; }
 .namerow input { flex: 1 1 140px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; }
 .ghost.danger { color: #a12; border-color: #f0caca; padding: 8px 10px; }
 .primary:disabled { opacity: .5; cursor: default; }
+
+/* "pick who you are" first-step emphasis */
+.who.needpick { background: var(--exact); border: 1px solid var(--green); border-radius: 10px; padding: 4px 8px; }
+.who.needpick label { font-weight: 700; color: var(--green-d); }
+.who.needpick select {
+  border-color: var(--green); color: var(--green-d); font-weight: 700;
+  animation: pickpulse 1.6s ease-in-out infinite;
+}
+@keyframes pickpulse {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(11, 122, 59, .25); }
+  50%      { box-shadow: 0 0 0 6px rgba(11, 122, 59, .08); }
+}
+.pickfirst {
+  background: var(--exact); border: 1px solid var(--green); color: var(--green-d);
+  border-radius: 10px; padding: 10px 12px; font-size: 14px; margin: 0 0 12px; line-height: 1.4;
+}
+
+/* compact the match grid on phones so every player column fits */
+@media (max-width: 600px) {
+  table.grid { min-width: 0; }
+  .grid th, .grid td { padding: 6px 3px; }
+  .mcol { min-width: 116px; max-width: 150px; }
+  .teams { font-size: 12px; line-height: 1.25; gap: 2px 4px; }
+  .meta { font-size: 10px; }
+  .badge { font-size: 10px; padding: 1px 6px; }
+  .pcol { min-width: 44px; }
+  .grid thead th { font-size: 11px; }
+  .entry { gap: 2px; }
+  .entry input { width: 26px; padding: 5px 1px; font-size: 14px; }
+  .pred { font-size: 14px; }
+  .brand { font-size: 16px; }
+}

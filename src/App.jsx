@@ -96,7 +96,7 @@ export default function App() {
     <div className="app">
       <header className="topbar">
         <div className="brand">⚽ Family Beats · World Cup 2026</div>
-        <div className="who">
+        <div className={me ? 'who' : 'who needpick'}>
           <label>I am:&nbsp;</label>
           <select value={me ?? ''} onChange={(e) => setMe(Number(e.target.value) || null)}>
             <option value="">— pick —</option>
@@ -125,6 +125,12 @@ export default function App() {
       </nav>
 
       {error && <div className="banner err">{error}</div>}
+      {!loading && !me && (
+        <div className="pickfirst">
+          👆 <b>Step 1:</b> tap <b>“I am: — pick —”</b> at the top and choose your name to start
+          placing bets.
+        </div>
+      )}
       {loading ? (
         <div className="loading">Loading…</div>
       ) : tab === 'matches' ? (
