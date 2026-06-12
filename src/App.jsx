@@ -407,21 +407,33 @@ function SettingsView({ players, me, setMe, reload }) {
       <p className="muted">
         Rename players, or add someone who wants to join. Everyone shares the same list.
       </p>
-      {players.map((p) => (
-        <div key={p.id} className="namerow">
-          <input
-            value={names[p.id] ?? ''}
-            onChange={(e) => setNames((n) => ({ ...n, [p.id]: e.target.value }))}
-            onBlur={() => saveName(p.id)}
-          />
-          <button className={me === p.id ? 'ghost active' : 'ghost'} onClick={() => setMe(p.id)}>
-            {me === p.id ? 'This is me' : 'Set as me'}
-          </button>
-          <button className="ghost danger" title="Remove player" onClick={() => removePlayer(p)}>
-            ✕
-          </button>
-        </div>
-      ))}
+      {players.map((p) => {
+        const changed = (names[p.id] ?? '').trim() !== p.name && (names[p.id] ?? '').trim() !== '';
+        return (
+          <div key={p.id} className="namerow">
+            <input
+              value={names[p.id] ?? ''}
+              onChange={(e) => setNames((n) => ({ ...n, [p.id]: e.target.value }))}
+              onBlur={() => saveName(p.id)}
+              onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
+            />
+            <button
+              className="primary"
+              title="Save this name"
+              onClick={() => saveName(p.id)}
+              disabled={!changed}
+            >
+              Rename
+            </button>
+            <button className={me === p.id ? 'ghost active' : 'ghost'} onClick={() => setMe(p.id)}>
+              {me === p.id ? 'This is me' : 'Set as me'}
+            </button>
+            <button className="ghost danger" title="Remove player" onClick={() => removePlayer(p)}>
+              ✕
+            </button>
+          </div>
+        );
+      })}
       <div className="namerow">
         <input
           placeholder="New player name…"

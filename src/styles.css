@@ -90,7 +90,7 @@ table.board { width: 100%; border-collapse: collapse; }
 .board tr.lead { background: var(--me); }
 
 /* settings */
-.namerow { display: flex; gap: 8px; margin: 8px 0; align-items: center; }
-.namerow input { flex: 1; padding: 10px; border: 1px solid var(--line); border-radius: 8px; }
+.namerow { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; align-items: center; }
+.namerow input { flex: 1 1 140px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; }
 .ghost.danger { color: #a12; border-color: #f0caca; padding: 8px 10px; }
 .primary:disabled { opacity: .5; cursor: default; }
