@@ -453,9 +453,10 @@ function SettingsView({ players, me, setMe, reload }) {
 
   const syncNow = async () => {
     setSyncing('Syncing…');
-    // Primary: the Supabase Edge Function (host-independent). Fallback: the
-    // Vercel /api/sync route, for older deployments without the edge function.
+    // Primary: the Vercel /api/sync route (same-origin, no CORS). Fallback: the
+    // Supabase Edge Function, for static hosts without /api/sync.
     const endpoints = [
+      { url: '/api/sync', headers: {} },
       supabaseUrl
         ? {
             url: `${supabaseUrl}/functions/v1/sync`,
@@ -465,7 +466,6 @@ function SettingsView({ players, me, setMe, reload }) {
             },
           }
         : null,
-      { url: '/api/sync', headers: {} },
     ].filter(Boolean);
 
     for (const ep of endpoints) {
@@ -473,18 +473,16 @@ function SettingsView({ players, me, setMe, reload }) {
         const res = await fetch(ep.url, { method: 'POST', headers: ep.headers });
         const body = await res.json().catch(() => ({}));
         if (res.ok) {
-          setSyncing(`Synced ${body.updated ?? ''} matches`);
+          setSyncing(`Synced ${body.withResults ?? 0} result(s) from ${body.updated ?? 0} matches`);
           await reload();
           setTimeout(() => setSyncing(''), 4000);
           return;
         }
-        setSyncing(`Failed: ${body.error || res.status}`);
       } catch (e) {
         // Try the next endpoint.
       }
     }
-    if (!supabaseUrl) setSyncing('Sync service not configured.');
-    else setSyncing('Could not reach the sync service.');
+    setSyncing('Could not reach the sync service.');
     await reload();
     setTimeout(() => setSyncing(''), 4000);
   };
