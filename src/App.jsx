@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
-import { supabase, supabaseReady } from './supabaseClient.js';
+import { supabase, supabaseReady, supabaseUrl, supabaseAnonKey } from './supabaseClient.js';
 import { pointsFor, standings, hasResult, POINTS_EXACT } from './scoring.js';
 import { prettyTeam, isRealTeam, STAGE_LABEL, kickoffParts, matchState } from './util.js';
 
@@ -453,14 +453,39 @@ function SettingsView({ players, me, setMe, reload }) {
 
   const syncNow = async () => {
     setSyncing('Syncing…');
-    try {
-      const res = await fetch('/api/sync', { method: 'POST' });
-      const body = await res.json().catch(() => ({}));
-      setSyncing(res.ok ? `Synced ${body.updated ?? ''} matches` : `Failed: ${body.error || res.status}`);
-      await reload();
-    } catch (e) {
-      setSyncing('Sync runs on the live site only.');
+    // Primary: the Supabase Edge Function (host-independent). Fallback: the
+    // Vercel /api/sync route, for older deployments without the edge function.
+    const endpoints = [
+      supabaseUrl
+        ? {
+            url: `${supabaseUrl}/functions/v1/sync`,
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${supabaseAnonKey}`,
+            },
+          }
+        : null,
+      { url: '/api/sync', headers: {} },
+    ].filter(Boolean);
+
+    for (const ep of endpoints) {
+      try {
+        const res = await fetch(ep.url, { method: 'POST', headers: ep.headers });
+        const body = await res.json().catch(() => ({}));
+        if (res.ok) {
+          setSyncing(`Synced ${body.updated ?? ''} matches`);
+          await reload();
+          setTimeout(() => setSyncing(''), 4000);
+          return;
+        }
+        setSyncing(`Failed: ${body.error || res.status}`);
+      } catch (e) {
+        // Try the next endpoint.
+      }
     }
+    if (!supabaseUrl) setSyncing('Sync service not configured.');
+    else setSyncing('Could not reach the sync service.');
+    await reload();
     setTimeout(() => setSyncing(''), 4000);
   };
 

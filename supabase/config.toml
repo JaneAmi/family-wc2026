@@ -1,0 +1,7 @@
+# Supabase project config (used by the Supabase CLI; dashboard users can ignore).
+# The sync function runs unauthenticated so the daily cron and the in-app button
+# can call it without a token — it only writes public match data.
+project_id = "family-wc2026"
+
+[functions.sync]
+verify_jwt = false

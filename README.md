@@ -22,7 +22,25 @@ a **leaderboard** ranks the family.
    - **anon public** key
    - **service_role** key (secret — only used server-side)
 
-### 2. Vercel (hosting + the daily sync)
+#### Daily sync inside Supabase (host-independent — recommended)
+So the scores update on their own no matter where the site is hosted (Vercel **or**
+GitHub Pages), the sync runs from Supabase itself:
+
+1. **Dashboard → Edge Functions → Create a function**, name it **`sync`**, paste the
+   contents of [`supabase/functions/sync/index.ts`](./supabase/functions/sync/index.ts),
+   and **Deploy**. In the function's settings, turn **Verify JWT off** (it only writes
+   public match data).
+2. **SQL Editor →** paste [`supabase/cron.sql`](./supabase/cron.sql) → **Run**. This
+   schedules the function daily at 06:00 UTC via `pg_cron`. (The URL in that file already
+   points at this project; change it if you cloned to a different Supabase project.)
+
+That's it — the in-app **Settings → Sync results now** button also calls this function, so
+syncing works on every host.
+
+### 2. Hosting — pick Vercel, GitHub Pages, or both
+Both can run side by side off the same `main` branch; the data layer is shared Supabase.
+
+#### Option A — Vercel
 1. Push this repo to GitHub (already done if Claude set it up), then go to
    [vercel.com](https://vercel.com) → **Add New → Project → Import** this repo.
    Vercel auto-detects Vite — no build settings to change.
@@ -38,7 +56,29 @@ a **leaderboard** ranks the family.
 3. **Deploy.** Open the URL, go to **Settings → Sync results now** once to pull the latest
    scores. Done — share the link with the family.
 
-The cron in [`vercel.json`](./vercel.json) re-syncs every day at 06:00 UTC.
+The cron in [`vercel.json`](./vercel.json) also re-syncs every day at 06:00 UTC (harmless
+duplicate of the Supabase cron; remove it if you only want Supabase to sync).
+
+#### Option B — GitHub Pages (works in Russia without a VPN more often than `*.vercel.app`)
+The [`.github/workflows/deploy-pages.yml`](./.github/workflows/deploy-pages.yml) workflow
+builds and publishes the app to Pages on every push to `main`.
+
+1. **Settings → Pages → Build and deployment → Source:** choose **GitHub Actions**.
+2. **Settings → Secrets and variables → Actions → Variables**, add two **repository
+   variables** (public client keys, so variables — not secrets — are fine):
+
+   | Name | Value |
+   | --- | --- |
+   | `VITE_SUPABASE_URL` | your Project URL |
+   | `VITE_SUPABASE_ANON_KEY` | your anon public key |
+
+3. Push to `main` (or run the workflow manually). The site appears at
+   `https://<your-github-user>.github.io/family-wc2026/`.
+
+> Pages is **static only** — there's no `/api/sync` there, which is exactly why the daily
+> sync lives in Supabase. The "Sync results now" button calls the Supabase function, so it
+> works on Pages too. If you later use a **custom domain** on Pages, set `base` back to
+> `'/'` in [`vite.config.js`](./vite.config.js).
 
 ## How it's used
 - Everyone opens the same URL, picks **"I am: <name>"** once (Settings lets you rename the
