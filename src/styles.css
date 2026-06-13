@@ -82,6 +82,14 @@ table.grid { border-collapse: collapse; width: 100%; min-width: 560px; }
 .pcol.miss  { background: var(--miss); }
 .mrow.played .mcol { background: #fbfdfc; }
 
+/* "hide others' bets" privacy toggle */
+.hideothers {
+  display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+  background: #fff; border: 1px solid var(--line); border-radius: 10px;
+  padding: 8px 12px; font-size: 14px; color: var(--ink); margin-bottom: 12px;
+}
+.hideothers input { width: 16px; height: 16px; accent-color: var(--green); }
+
 /* collapsible "finished matches" group */
 .finished { margin-top: 8px; }
 .finished-toggle {

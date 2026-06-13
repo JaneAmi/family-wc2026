@@ -5,6 +5,7 @@ import { prettyTeam, isRealTeam, STAGE_LABEL, kickoffParts, matchState } from '.
 
 const STAGE_ORDER = ['group', 'R32', 'R16', 'QF', 'SF', '3rd', 'Final'];
 const ME_KEY = 'wc2026_me';
+const HIDE_KEY = 'wc2026_hide_others';
 
 export default function App() {
   const [tab, setTab] = useState('matches');
@@ -12,6 +13,7 @@ export default function App() {
   const [matches, setMatches] = useState([]);
   const [predByKey, setPredByKey] = useState(new Map());
   const [me, setMe] = useState(() => Number(localStorage.getItem(ME_KEY)) || null);
+  const [hideOthers, setHideOthers] = useState(() => localStorage.getItem(HIDE_KEY) === '1');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [now, setNow] = useState(Date.now());
@@ -61,6 +63,10 @@ export default function App() {
   useEffect(() => {
     if (me) localStorage.setItem(ME_KEY, String(me));
   }, [me]);
+
+  useEffect(() => {
+    localStorage.setItem(HIDE_KEY, hideOthers ? '1' : '0');
+  }, [hideOthers]);
 
   const savePrediction = useCallback(
     async (match_no, player_id, h, a) => {
@@ -141,6 +147,8 @@ export default function App() {
           me={me}
           now={now}
           onSave={savePrediction}
+          hideOthers={hideOthers}
+          setHideOthers={setHideOthers}
         />
       ) : tab === 'leaderboard' ? (
         <LeaderboardView players={players} matches={matches} predByKey={predByKey} />
@@ -156,8 +164,11 @@ export default function App() {
   );
 }
 
-function MatchesView({ players, matches, predByKey, me, now, onSave }) {
+function MatchesView({ players, matches, predByKey, me, now, onSave, hideOthers, setHideOthers }) {
   const [showFinished, setShowFinished] = useState(false);
+
+  // When "hide others" is on and you've picked yourself, only show your column.
+  const shownPlayers = hideOthers && me ? players.filter((p) => p.id === me) : players;
 
   const active = useMemo(
     () => matches.filter((m) => matchState(m, now) !== 'played'),
@@ -181,7 +192,7 @@ function MatchesView({ players, matches, predByKey, me, now, onSave }) {
   const header = (
     <tr>
       <th className="mcol">Match</th>
-      {players.map((p) => (
+      {shownPlayers.map((p) => (
         <th key={p.id} className={p.id === me ? 'pcol mecol' : 'pcol'}>
           {p.name}
         </th>
@@ -198,7 +209,7 @@ function MatchesView({ players, matches, predByKey, me, now, onSave }) {
             <MatchRow
               key={m.match_no}
               match={m}
-              players={players}
+              players={shownPlayers}
               predByKey={predByKey}
               me={me}
               now={now}
@@ -212,6 +223,17 @@ function MatchesView({ players, matches, predByKey, me, now, onSave }) {
 
   return (
     <div className="matches">
+      {me && (
+        <label className="hideothers" title="Show only your own column">
+          <input
+            type="checkbox"
+            checked={hideOthers}
+            onChange={(e) => setHideOthers(e.target.checked)}
+          />
+          Hide other players’ bets
+        </label>
+      )}
+
       {finished.length > 0 && (
         <section className="stage finished">
           <button
