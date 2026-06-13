@@ -61,19 +61,16 @@ duplicate of the Supabase cron; remove it if you only want Supabase to sync).
 
 #### Option B — GitHub Pages (works in Russia without a VPN more often than `*.vercel.app`)
 The [`.github/workflows/deploy-pages.yml`](./.github/workflows/deploy-pages.yml) workflow
-builds and publishes the app to Pages on every push to `main`.
+builds and publishes the app to Pages on every push to `main`, and **auto-enables Pages**
+(`enablement: true`) so there's nothing to click. The public Supabase keys come from the
+committed [`.env.production`](./.env.production), so no repository variables are needed.
 
-1. **Settings → Pages → Build and deployment → Source:** choose **GitHub Actions**.
-2. **Settings → Secrets and variables → Actions → Variables**, add two **repository
-   variables** (public client keys, so variables — not secrets — are fine):
+Just push to `main` (or run the workflow from the **Actions** tab). The site appears at
+`https://<your-github-user>.github.io/family-wc2026/`.
 
-   | Name | Value |
-   | --- | --- |
-   | `VITE_SUPABASE_URL` | your Project URL |
-   | `VITE_SUPABASE_ANON_KEY` | your anon public key |
-
-3. Push to `main` (or run the workflow manually). The site appears at
-   `https://<your-github-user>.github.io/family-wc2026/`.
+> If your org disables auto-enable, turn it on once under **Settings → Pages → Source:
+> GitHub Actions**, then re-run the workflow. If you fork to a *different* Supabase project,
+> update `.env.production` with your own public URL + anon key.
 
 > Pages is **static only** — there's no `/api/sync` there, which is exactly why the daily
 > sync lives in Supabase. The "Sync results now" button calls the Supabase function, so it

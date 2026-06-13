@@ -39,9 +39,10 @@ jobs:
         run: npm run build
         env:
           GITHUB_PAGES: 'true'
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+          # Supabase values come from the committed .env.production (public keys).
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true   # auto-enable Pages so no manual repo setup is needed
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
