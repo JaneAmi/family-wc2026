@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState, useCallback } from 'react';
 import { supabase, supabaseReady, supabaseUrl, supabaseAnonKey } from './supabaseClient.js';
 import { pointsFor, standings, hasResult, POINTS_EXACT } from './scoring.js';
 import { prettyTeam, isRealTeam, STAGE_LABEL, kickoffParts, matchState } from './util.js';
-import { resolveBracket } from './bracket.js';
 
 const STAGE_ORDER = ['group', 'R32', 'R16', 'QF', 'SF', '3rd', 'Final'];
 const ME_KEY = 'wc2026_me';
@@ -36,9 +35,7 @@ export default function App() {
       return;
     }
     setPlayers(pl.data);
-    // Fill in knockout teams the feed leaves as codes (e.g. 2A → the group's
-    // runner-up) so those games can open for betting once the group is done.
-    setMatches(resolveBracket(mt.data));
+    setMatches(mt.data);
     const map = new Map();
     for (const p of pr.data) map.set(`${p.match_no}:${p.player_id}`, p);
     setPredByKey(map);
