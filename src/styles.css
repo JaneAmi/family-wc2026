@@ -66,6 +66,7 @@ table.grid { border-collapse: collapse; width: 100%; min-width: 560px; }
 .badge.pending { background: #eceff0; color: var(--muted); }
 .result { font-weight: 800; }
 .result .ft { font-size: 10px; color: var(--muted); font-weight: 600; }
+.result .pen { font-size: 11px; font-weight: 800; color: #b25b00; }
 
 .entry { display: flex; align-items: center; justify-content: center; gap: 3px; }
 .entry input { width: 34px; padding: 6px 2px; text-align: center; border: 1px solid var(--line); border-radius: 7px; font-size: 15px; }

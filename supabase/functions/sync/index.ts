@@ -56,7 +56,11 @@ function stageFor(round?: string): string {
 function parseFixtures(data: any) {
   const raw = (data && data.matches) || [];
   return raw.map((m: any, i: number) => {
-    const ft = m.score && Array.isArray(m.score.ft) ? m.score.ft : null;
+    const s = m.score || {};
+    const ft = Array.isArray(s.ft) ? s.ft : null;
+    const et = Array.isArray(s.et) ? s.et : null; // after extra time, if played
+    const pen = Array.isArray(s.p) ? s.p : null;  // penalty shootout, if played
+    const final = et || ft;
     return {
       match_no: typeof m.num === "number" ? m.num : i + 1,
       stage: stageFor(m.round),
@@ -64,8 +68,10 @@ function parseFixtures(data: any) {
       home_team: m.team1 || "TBD",
       away_team: m.team2 || "TBD",
       kickoff: toUtcIso(m.date, m.time),
-      home_score: ft ? ft[0] : null,
-      away_score: ft ? ft[1] : null,
+      home_score: final ? final[0] : null,
+      away_score: final ? final[1] : null,
+      pen_home: pen ? pen[0] : null,
+      pen_away: pen ? pen[1] : null,
     };
   });
 }
@@ -88,7 +94,9 @@ Deno.serve(async (req) => {
     const fixtures = parseFixtures(data);
 
     // Don't wipe an already-known score if the feed temporarily lacks it.
-    const { data: existing } = await db.from("matches").select("match_no,home_score,away_score");
+    const { data: existing } = await db
+      .from("matches")
+      .select("match_no,home_score,away_score,pen_home,pen_away");
     const exMap = new Map((existing || []).map((m: any) => [m.match_no, m]));
 
     const rows = fixtures.map((f: any) => {
@@ -97,6 +105,8 @@ Deno.serve(async (req) => {
         ...f,
         home_score: f.home_score ?? ex?.home_score ?? null,
         away_score: f.away_score ?? ex?.away_score ?? null,
+        pen_home: f.pen_home ?? ex?.pen_home ?? null,
+        pen_away: f.pen_away ?? ex?.pen_away ?? null,
       };
     });
 

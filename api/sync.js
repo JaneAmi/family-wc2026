@@ -24,7 +24,9 @@ export default async function handler(req, res) {
     const fixtures = parseFixtures(data);
 
     // Don't wipe an already-known score if the feed temporarily lacks it.
-    const { data: existing } = await db.from('matches').select('match_no,home_score,away_score');
+    const { data: existing } = await db
+      .from('matches')
+      .select('match_no,home_score,away_score,pen_home,pen_away');
     const exMap = new Map((existing || []).map((m) => [m.match_no, m]));
 
     const rows = fixtures.map((f) => {
@@ -33,6 +35,8 @@ export default async function handler(req, res) {
         ...f,
         home_score: f.home_score ?? ex?.home_score ?? null,
         away_score: f.away_score ?? ex?.away_score ?? null,
+        pen_home: f.pen_home ?? ex?.pen_home ?? null,
+        pen_away: f.pen_away ?? ex?.pen_away ?? null,
       };
     });
 

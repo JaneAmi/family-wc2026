@@ -16,9 +16,15 @@ create table if not exists matches (
   home_team   text not null,
   away_team   text not null,
   kickoff     timestamptz not null,     -- stored in UTC, shown in each viewer's local time
-  home_score  int,                      -- null until the match is played / synced
-  away_score  int
+  home_score  int,                      -- final outfield score (incl. extra time); null until played
+  away_score  int,
+  pen_home    int,                      -- penalty-shootout score, null unless decided on penalties
+  pen_away    int
 );
+
+-- Add penalty columns to a pre-existing database (no-op if already present).
+alter table matches add column if not exists pen_home int;
+alter table matches add column if not exists pen_away int;
 
 create table if not exists predictions (
   id         bigint generated always as identity primary key,

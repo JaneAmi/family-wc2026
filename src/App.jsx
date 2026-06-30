@@ -278,6 +278,11 @@ function MatchRow({ match, players, predByKey, me, now, onSave }) {
           {state === 'played' ? (
             <span className="result">
               {match.home_score}–{match.away_score} <span className="ft">FT</span>
+              {match.pen_home != null && match.pen_away != null && (
+                <span className="pen" title="Decided on penalties">
+                  {' '}({match.pen_home}–{match.pen_away} pen)
+                </span>
+              )}
             </span>
           ) : state === 'locked' ? (
             <span className="badge locked">Locked</span>
